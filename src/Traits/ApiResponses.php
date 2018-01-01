@@ -19,20 +19,46 @@ trait ApiResponses
         return response()->json($data, $status, $headers, $options);
     }
 
-    protected function respondSuccessfulUpdate(string $resource = ''): JsonResponse
+    private function updateResponse(array $data): JsonResponse
     {
-        /**
-         * With this change, the developer will be able to add sibling data to the 'message' key
-        return $this->respondJson(
-        array_merge(['message' => $this->getSuccessfulUpdateMessage($resource)], $additionalData)
-        );
-         */
-        // TODO: put key names in a config file, with this, the developer will be able to change the 'message key dynamically'
-        return $this->respondJson(['message' => $this->getSuccessfulUpdateMessage($resource)]);
+        $response = [
+            config('api-helpers.'.$data['response_type'].'.field') => $this->{'get'.studly_case($data['type'].$data['crud_action']).'Message'}($data['resource'])
+        ];
+
+        if(config('api-helpers.messages.with_status_code')) {
+            $response = array_merge($response, ['status_code' => $data['status_code']]);
+        }
+
+        if(! empty($data['additional_data'])) {
+            $response = array_merge($response, $data['additional_data']);
+        }
+
+        return $this->respondJson($response, $data['status_code'], $data['headers']);
     }
 
-    protected function respondFailedUpdate(string $resource = ''): JsonResponse
+    protected function respondSuccessfulUpdate(string $resource = '', int $statusCode = 200, array $additionalData = [], array $headers = []): JsonResponse
     {
-        return $this->respondJson(['message' => $this->getFailedUpdateMessage($resource)]);
+        return $this->updateResponse([
+            'response_type' => 'messages',
+            'type' => 'successful',
+            'crud_action' => 'update',
+            'resource' => $resource,
+            'status_code' => $statusCode,
+            'additional_data' => $additionalData,
+            'headers' => $headers,
+        ]);
+    }
+
+    protected function respondFailedUpdate(string $resource = '', int $statusCode = 500, array $additionalData = [], array $headers = []): JsonResponse
+    {
+        return $this->updateResponse([
+            'response_type' => 'errors',
+            'type' => 'failed',
+            'crud_action' => 'update',
+            'resource' => $resource,
+            'status_code' => $statusCode,
+            'additional_data' => $additionalData,
+            'headers' => $headers,
+        ]);
     }
 }
