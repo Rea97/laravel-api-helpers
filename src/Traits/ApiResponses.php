@@ -7,7 +7,7 @@ use Illuminate\Http\Resources\Json\Resource;
 
 trait ApiResponses
 {
-    use ApiResponseMessages, ParsesApiQueryParams;
+    use ApiErrorResponses, ApiResponseMessages, ParsesApiQueryParams;
 
     protected function respondResource(Resource $resource, int $status = 200, array $headers = []): JsonResponse
     {
