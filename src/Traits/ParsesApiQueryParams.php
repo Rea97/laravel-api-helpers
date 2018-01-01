@@ -36,22 +36,11 @@ trait ParsesApiQueryParams
         $wheres = $this->parseApiListParameters('where', ',', $request);
 
         foreach ($wheres as $where) {
-            [$field, $value] = explode(':', $where);
+            [$field, $operator, $value] = $this->structurewhereArray($where);
 
             // We need to verify that the requested field exists in the model
             if (in_array($field, $attributes, true)) {
-                switch ($value) {
-                    case 'null':
-                        $value = null;
-                        break;
-                    case 'true':
-                        $value = true;
-                        break;
-                    case 'false':
-                        $value = false;
-                        break;
-                }
-                $criteria[$field] = $value;
+                $criteria[] = [$field, $operator, $this->castIfBoolOrNull($value)];
             }
         }
 
@@ -67,5 +56,61 @@ trait ParsesApiQueryParams
             $this->parseWithParameter($request),
             $this->parseWhereParameter($request, $attributes)
         ];
+    }
+
+    /**
+     * Parses a string and build an array with 3 items [$field, $operator, $value]
+     */
+    private function structurewhereArray(string $where): array
+    {
+        $delimiter = ':';
+        $operator = '=';
+
+        if(str_contains($where, '<')) {
+            $delimiter = '<';
+            $operator = '<';
+        }
+
+        if(str_contains($where, '>')) {
+            $delimiter = '>';
+            $operator = '>';
+        }
+
+        if(str_contains($where, '<:')) {
+            $delimiter = '<:';
+            $operator = '<=';
+        }
+
+        if(str_contains($where, '>:')) {
+            $delimiter = '>:';
+            $operator = '>=';
+        }
+
+        [$field, $value] = explode($delimiter, $where);
+
+
+        return [$field, $operator, $value];
+    }
+
+    /**
+     * Takes an string and checks if it matches with "null", "true" or "false" and then makes a "cast".
+     * 
+     * @param string $value
+     * 
+     * @return mixed
+     */
+    private function castIfBoolOrNull(string $value)
+    {
+        switch ($value) {
+            case 'null':
+                return null;
+            case 'true':
+                return true;
+                break;
+            case 'false':
+                return false;
+            default:
+                return $value;
+        }
     }
 }
