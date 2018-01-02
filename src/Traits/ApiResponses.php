@@ -21,23 +21,29 @@ trait ApiResponses
 
     private function updateResponse(array $data): JsonResponse
     {
+        $methodName = 'get'.studly_case($data['type'].$data['crud_action']).'Message';
+
         $response = [
-            config('api-helpers.'.$data['response_type'].'.field') => $this->{'get'.studly_case($data['type'].$data['crud_action']).'Message'}($data['resource'])
+            config('api-helpers.'.$data['response_type'].'.field') => $this->{$methodName}($data['resource'])
         ];
 
-        if(config('api-helpers.messages.with_status_code')) {
+        if (config('api-helpers.messages.with_status_code')) {
             $response = array_merge($response, ['status_code' => $data['status_code']]);
         }
 
-        if(! empty($data['additional_data'])) {
+        if (! empty($data['additional_data'])) {
             $response = array_merge($response, $data['additional_data']);
         }
 
         return $this->respondJson($response, $data['status_code'], $data['headers']);
     }
 
-    protected function respondSuccessfulUpdate(string $resource = '', int $statusCode = 200, array $additionalData = [], array $headers = []): JsonResponse
-    {
+    protected function respondSuccessfulUpdate(
+        string $resource = '',
+        int $statusCode = 200,
+        array $additionalData = [],
+        array $headers = []
+    ): JsonResponse {
         return $this->updateResponse([
             'response_type' => 'messages',
             'type' => 'successful',
@@ -49,8 +55,12 @@ trait ApiResponses
         ]);
     }
 
-    protected function respondFailedUpdate(string $resource = '', int $statusCode = 500, array $additionalData = [], array $headers = []): JsonResponse
-    {
+    protected function respondFailedUpdate(
+        string $resource = '',
+        int $statusCode = 500,
+        array $additionalData = [],
+        array $headers = []
+    ): JsonResponse {
         return $this->updateResponse([
             'response_type' => 'errors',
             'type' => 'failed',

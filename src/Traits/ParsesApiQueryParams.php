@@ -66,22 +66,22 @@ trait ParsesApiQueryParams
         $delimiter = ':';
         $operator = '=';
 
-        if(str_contains($where, '<')) {
+        if (str_contains($where, '<')) {
             $delimiter = '<';
             $operator = '<';
         }
 
-        if(str_contains($where, '>')) {
+        if (str_contains($where, '>')) {
             $delimiter = '>';
             $operator = '>';
         }
 
-        if(str_contains($where, '<:')) {
+        if (str_contains($where, '<:')) {
             $delimiter = '<:';
             $operator = '<=';
         }
 
-        if(str_contains($where, '>:')) {
+        if (str_contains($where, '>:')) {
             $delimiter = '>:';
             $operator = '>=';
         }
@@ -94,9 +94,9 @@ trait ParsesApiQueryParams
 
     /**
      * Takes an string and checks if it matches with "null", "true" or "false" and then makes a "cast".
-     * 
+     *
      * @param string $value
-     * 
+     *
      * @return mixed
      */
     private function castIfBoolOrNull(string $value)

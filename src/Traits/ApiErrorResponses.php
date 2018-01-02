@@ -6,8 +6,12 @@ use Illuminate\Http\JsonResponse;
 
 trait ApiErrorResponses
 {
-    protected function respondError(string $message, int $statusCode, ?int $errorCode = null, array $additionalData = []): JsonResponse
-    {
+    protected function respondError(
+        string $message,
+        int $statusCode,
+        ?int $errorCode = null,
+        array $additionalData = []
+    ): JsonResponse {
         $response = [
             'error' => [
                 'message' => $message,
