@@ -46,7 +46,7 @@ trait ParsesApiQueryParams
         $wheres = $this->parseApiListParameters('where', ',', $request);
 
         foreach ($wheres as $where) {
-            [$field, $operator, $value] = $this->structurewhereArray($where);
+            [$field, $operator, $value] = $this->structureWhereFromString($where);
 
             // We need to verify that the requested field exists in the model
             if (! in_array($field, $attributes, true)) {
@@ -73,7 +73,7 @@ trait ParsesApiQueryParams
     /**
      * Parses a string and build an array with 3 items [$field, $operator, $value]
      */
-    private function structurewhereArray(string $where): array
+    private function structureWhereFromString(string $where): array
     {
         $delimiter = ':';
         $operator = '=';
