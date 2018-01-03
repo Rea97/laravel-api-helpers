@@ -3,6 +3,7 @@
 namespace ReaDev\ApiHelpers\Traits;
 
 use Illuminate\Http\Request;
+use ReaDev\ApiHelpers\Exceptions\RelationNotFoundException;
 
 trait ParsesApiQueryParams
 {
@@ -17,9 +18,17 @@ trait ParsesApiQueryParams
     /**
      * Parses the "with" query string parameter from the request.
      */
-    protected function parseWithParameter(Request $request): array
+    protected function parseWithParameter(Request $request, array $relations): array
     {
-        return $this->parseApiListParameters('with', ',', $request);
+        $includes = $this->parseApiListParameters('with', ',', $request);
+
+        foreach($includes as $include) {
+            if (! in_array($include, $relations, true)) {
+                throw new RelationNotFoundException("Relation '{$include}' does not exists in the resource.");
+            }
+        }
+
+        return $includes;
     }
 
     /**
