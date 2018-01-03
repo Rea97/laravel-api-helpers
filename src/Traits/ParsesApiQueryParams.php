@@ -60,12 +60,48 @@ trait ParsesApiQueryParams
     }
 
     /**
+     * Parses the "sort" query string and returns an array of arrays with the indexes "sort_col" and "sort_direction".
+     *
+     * @param Request $request
+     * @param array   $attributes Model attributes that are searchable
+     * @param array   $default    Default returned if sort query string has not value
+     *
+     * @return array
+     * @throws AttributeNotFoundException
+     */
+    protected function parseSortParameter(Request $request, array $attributes, array $default): array
+    {
+        $orderBy = [];
+        // Incoming sortCols example: ['title', '-read_time']
+        $sortCols = $this->parseApiListParameters('sort', ',', $request);
+
+        if (empty($sortCols)) {
+            return [$default];
+        }
+
+        $count = count($sortCols);
+        for($i = 0; $i < $count; $i++) {
+            $col = starts_with($sortCols[$i], '-') ? str_after($sortCols[$i], '-') : $sortCols[$i];
+            $direction = starts_with($sortCols[$i], '-') ? 'desc' : 'asc';
+
+            if (! in_array($col, $attributes, true)) {
+                throw new AttributeNotFoundException("Field '{$col}' is not available in the requested resource.");
+            }
+            
+            $orderBy[$i]['sort_col'] = $col;
+            $orderBy[$i]['sort_direction'] = $direction;
+        }
+
+        return $orderBy;
+    }
+
+    /**
      * Parses all the query parameters available in the package.
      */
-    protected function parseQueryParameters(Request $request, array $attributes): array
+    protected function parseQueryParameters(Request $request, array $relations, array $attributes): array
     {
         return [
-            $this->parseWithParameter($request),
+            $this->parseWithParameter($request, $relations),
             $this->parseWhereParameter($request, $attributes)
         ];
     }
