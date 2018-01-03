@@ -18,14 +18,14 @@ trait ParsesApiQueryParams
 
     /**
      * Parses the "include" query string parameter from the request.
-     * 
+     *
      * @throws RelationNotFoundException
      */
     protected function parseIncludeParameter(Request $request, array $relations): array
     {
         $includes = $this->parseApiListParameters('include', ',', $request);
 
-        foreach($includes as $include) {
+        foreach ($includes as $include) {
             if (! in_array($include, $relations, true)) {
                 throw new RelationNotFoundException("Relation '{$include}' does not exists in the resource.");
             }
@@ -83,7 +83,7 @@ trait ParsesApiQueryParams
         }
 
         $count = count($sortCols);
-        for($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $col = starts_with($sortCols[$i], '-') ? str_after($sortCols[$i], '-') : $sortCols[$i];
             $direction = starts_with($sortCols[$i], '-') ? 'desc' : 'asc';
 
