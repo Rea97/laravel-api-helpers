@@ -3,6 +3,7 @@
 namespace ReaDev\ApiHelpers\Traits;
 
 use Illuminate\Http\Request;
+use ReaDev\ApiHelpers\Exceptions\AttributeNotFoundException;
 use ReaDev\ApiHelpers\Exceptions\RelationNotFoundException;
 
 trait ParsesApiQueryParams
@@ -48,9 +49,11 @@ trait ParsesApiQueryParams
             [$field, $operator, $value] = $this->structurewhereArray($where);
 
             // We need to verify that the requested field exists in the model
-            if (in_array($field, $attributes, true)) {
-                $criteria[] = [$field, $operator, $this->castIfBoolOrNull($value)];
+            if (! in_array($field, $attributes, true)) {
+                throw new AttributeNotFoundException("Field '{$col}' is not available in the requested resource.");
             }
+
+            $criteria[] = [$field, $operator, $this->castIfBoolOrNull($value)];
         }
 
         return $criteria;
