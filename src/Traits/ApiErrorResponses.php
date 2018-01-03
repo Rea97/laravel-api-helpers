@@ -14,13 +14,13 @@ trait ApiErrorResponses
     ): JsonResponse {
         $response = [
             'error' => [
-                'message' => $message,
-                'http_code' => $statusCode
+                'detail' => $message,
+                'status' => (string) $statusCode
             ]
         ];
 
         if ($errorCode !== null) {
-            $response['error']['error_code'] = $errorCode;
+            $response['error']['code'] = (string) $errorCode;
         }
 
         if (! empty($additionalData)) {
