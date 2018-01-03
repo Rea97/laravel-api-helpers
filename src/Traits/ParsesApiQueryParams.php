@@ -53,7 +53,7 @@ trait ParsesApiQueryParams
 
             // We need to verify that the requested field exists in the model
             if (! in_array($field, $attributes, true)) {
-                throw new AttributeNotFoundException("Field '{$col}' is not available in the requested resource.");
+                throw new AttributeNotFoundException("Field '{$field}' is not available in the requested resource.");
             }
 
             $criteria[] = [$field, $operator, $this->castIfBoolOrNull($value)];
