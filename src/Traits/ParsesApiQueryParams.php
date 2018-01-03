@@ -43,13 +43,13 @@ trait ParsesApiQueryParams
      * @return array
      * @throws AttributeNotFoundException
      */
-    protected function parseWhereParameter(Request $request, array $attributes): array
+    protected function parseFilterParameter(Request $request, array $attributes): array
     {
         $criteria = [];
-        $wheres = $this->parseApiListParameters('where', ',', $request);
+        $filters = $this->parseApiListParameters('filter', ',', $request);
 
-        foreach ($wheres as $where) {
-            [$field, $operator, $value] = $this->structureWhereFromString($where);
+        foreach ($filters as $filter) {
+            [$field, $operator, $value] = $this->structureWhereFromString($filter);
 
             // We need to verify that the requested field exists in the model
             if (! in_array($field, $attributes, true)) {
@@ -105,7 +105,7 @@ trait ParsesApiQueryParams
     {
         return [
             $this->parseIncludeParameter($request, $relations),
-            $this->parseWhereParameter($request, $attributes)
+            $this->parseFilterParameter($request, $attributes)
         ];
     }
 
