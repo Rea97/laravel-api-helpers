@@ -17,13 +17,13 @@ trait ParsesApiQueryParams
     }
 
     /**
-     * Parses the "with" query string parameter from the request.
+     * Parses the "include" query string parameter from the request.
      * 
      * @throws RelationNotFoundException
      */
-    protected function parseWithParameter(Request $request, array $relations): array
+    protected function parseIncludeParameter(Request $request, array $relations): array
     {
-        $includes = $this->parseApiListParameters('with', ',', $request);
+        $includes = $this->parseApiListParameters('include', ',', $request);
 
         foreach($includes as $include) {
             if (! in_array($include, $relations, true)) {
@@ -104,7 +104,7 @@ trait ParsesApiQueryParams
     protected function parseQueryParameters(Request $request, array $relations, array $attributes): array
     {
         return [
-            $this->parseWithParameter($request, $relations),
+            $this->parseIncludeParameter($request, $relations),
             $this->parseWhereParameter($request, $attributes)
         ];
     }
