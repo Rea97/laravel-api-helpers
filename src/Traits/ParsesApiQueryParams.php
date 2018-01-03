@@ -18,6 +18,8 @@ trait ParsesApiQueryParams
 
     /**
      * Parses the "with" query string parameter from the request.
+     * 
+     * @throws RelationNotFoundException
      */
     protected function parseWithParameter(Request $request, array $relations): array
     {
@@ -39,6 +41,7 @@ trait ParsesApiQueryParams
      * @param array   $attributes Model attributes that are searchable
      *
      * @return array
+     * @throws AttributeNotFoundException
      */
     protected function parseWhereParameter(Request $request, array $attributes): array
     {
