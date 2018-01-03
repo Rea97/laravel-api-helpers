@@ -30,8 +30,11 @@ trait ApiErrorResponses
         return response()->json($response, 404);
     }
 
-    protected function respondNotFound(?int $errorCode = null, array $additionalData = []): JsonResponse
-    {
-        return $this->respondError('Not found', 404, $errorCode, $additionalData);
+    protected function respondNotFoundError(
+        string $message = 'Not found.',
+        ?int $errorCode = null,
+        array $additionalData = []
+    ): JsonResponse {
+        return $this->respondError($message, 404, $errorCode, $additionalData);
     }
 }
