@@ -1,4 +1,4 @@
-# Laravel Api Helpers
+# Laravel Api Helpers (Unreleased)
 
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Software License][ico-license]](LICENSE.md)
@@ -8,7 +8,9 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 
 
-Api helpers for building api's with laravel.
+This package is under development.
+
+Api helpers for building api's with laravel 5.5
 
 ## Install
 
@@ -19,7 +21,7 @@ $ composer require readev/laravel-api-helpers
 ```
 
 ## Usage
-
+In process...
 
 ## Change log
 
