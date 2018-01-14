@@ -38,6 +38,40 @@ trait ApiResponses
         return $this->respondJson($response, $data['status_code'], $data['headers']);
     }
 
+    protected function respondSuccessfulDelete(
+        string $resource = '',
+        int $statusCode = 200,
+        array $additionalData = [],
+        array $headers = []
+    ): JsonResponse {
+        return $this->updateResponse([
+            'response_type' => 'messages',
+            'type' => 'successful',
+            'crud_action' => 'delete',
+            'resource' => $resource,
+            'status_code' => $statusCode,
+            'additional_data' => $additionalData,
+            'headers' => $headers,
+        ]);
+    }
+
+    protected function respondFailedDelete(
+        string $resource = '',
+        int $statusCode = 500,
+        array $additionalData = [],
+        array $headers = []
+    ): JsonResponse {
+        return $this->updateResponse([
+            'response_type' => 'messages',
+            'type' => 'failed',
+            'crud_action' => 'delete',
+            'resource' => $resource,
+            'status_code' => $statusCode,
+            'additional_data' => $additionalData,
+            'headers' => $headers,
+        ]);
+    }
+
     protected function respondSuccessfulUpdate(
         string $resource = '',
         int $statusCode = 200,
