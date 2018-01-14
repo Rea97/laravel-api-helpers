@@ -39,15 +39,15 @@ trait ParsesApiQueryParams
      * Parses the "where" query string and returns a criteria array.
      *
      * @param Request $request
-     * @param array   $attributes Model attributes that are searchable
+     * @param array   $available Model attributes and relations that are searchable
      *
      * @return array
      * @throws AttributeNotFoundException|RelationNotFoundException
      */
-    protected function parseFilterParameter(Request $request, array $attributes, array $relations): array
+    protected function parseFilterParameter(Request $request, array $available): array
     {
+
         $criteria = [];
-        $relationCriteria = [];
         $filters = $this->parseApiListParameters('filter', ',', $request);
 
         foreach ($filters as $filter) {
@@ -56,10 +56,10 @@ trait ParsesApiQueryParams
             if (str_contains($field, '.')) {
                 [$relation, $field] = explode('.', $field);
                 // Verify the requested relation field exists
-                if (! in_array($relation, $relations, true)) {
+                if (! array_key_exists($relation, $available['relations'])) {
                     throw new RelationNotFoundException("Relation '{$relation}' does not exists in the resource.");
                 }
-                if (! in_array($field, $attributes, true)) {
+                if (! in_array($field, $available['relations'][$relation], true)) {
                     throw new AttributeNotFoundException(
                         "Field '{$field}' is not available in the requested resource '{$relation}'."
                     );
@@ -74,7 +74,7 @@ trait ParsesApiQueryParams
                 continue;
             }
             // We need to verify that the requested field exists in the model
-            if (! in_array($field, $attributes, true)) {
+            if (! in_array($field, $available['self'], true)) {
                 throw new AttributeNotFoundException("Field '{$field}' is not available in the requested resource.");
             }
 
@@ -193,7 +193,6 @@ trait ParsesApiQueryParams
 
     protected function passFiltersToQueryBuilder(array $filters, Builder $query): Builder
     {
-        // Pending. filter with whereHas has bugs when the requested relation does not have the specified field
         foreach ($filters as $type => $filter) {
             foreach ($filter as $item) {
                 if ($type === 'where_has') {
