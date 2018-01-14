@@ -27,7 +27,7 @@ trait ApiErrorResponses
             $response = array_merge($response, $additionalData);
         }
 
-        return response()->json($response, 404);
+        return response()->json($response, $statusCode);
     }
 
     protected function respondNotFoundError(
