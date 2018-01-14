@@ -2,6 +2,7 @@
 
 namespace ReaDev\ApiHelpers\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use ReaDev\ApiHelpers\Exceptions\AttributeNotFoundException;
 use ReaDev\ApiHelpers\Exceptions\RelationNotFoundException;
@@ -41,22 +42,47 @@ trait ParsesApiQueryParams
      * @param array   $attributes Model attributes that are searchable
      *
      * @return array
-     * @throws AttributeNotFoundException
+     * @throws AttributeNotFoundException|RelationNotFoundException
      */
-    protected function parseFilterParameter(Request $request, array $attributes): array
+    protected function parseFilterParameter(Request $request, array $attributes, array $relations): array
     {
         $criteria = [];
+        $relationCriteria = [];
         $filters = $this->parseApiListParameters('filter', ',', $request);
 
         foreach ($filters as $filter) {
             [$field, $operator, $value] = $this->structureWhereFromString($filter);
+            
+            if (str_contains($field, '.')) {
+                [$relation, $field] = explode('.', $field);
+                // Verify the requested relation field exists
+                if (! in_array($relation, $relations, true)) {
+                    throw new RelationNotFoundException("Relation '{$relation}' does not exists in the resource.");
+                }
+                if (! in_array($field, $attributes, true)) {
+                    throw new AttributeNotFoundException(
+                        "Field '{$field}' is not available in the requested resource '{$relation}'."
+                    );
+                }
 
+                $criteria['where_has'][] = [
+                    'relation' => $relation,
+                    'field' => $field,
+                    'operator' => $operator,
+                    'value' => $this->castIfBoolOrNull($value)
+                ];
+                continue;
+            }
             // We need to verify that the requested field exists in the model
             if (! in_array($field, $attributes, true)) {
                 throw new AttributeNotFoundException("Field '{$field}' is not available in the requested resource.");
             }
 
-            $criteria[] = [$field, $operator, $this->castIfBoolOrNull($value)];
+            $criteria['where'][] = [
+                'field' => $field,
+                'operator' => $operator,
+                'value' => $this->castIfBoolOrNull($value)
+            ];
         }
 
         return $criteria;
@@ -163,5 +189,24 @@ trait ParsesApiQueryParams
             default:
                 return $value;
         }
+    }
+
+    protected function passFiltersToQueryBuilder(array $filters, Builder $query): Builder
+    {
+        // Pending. filter with whereHas has bugs when the requested relation does not have the specified field
+        foreach ($filters as $type => $filter) {
+            foreach ($filter as $item) {
+                if ($type === 'where_has') {
+                    $query->whereHas($item['relation'], function (Builder $query) use ($item) {
+                        $query->where($item['field'], $item['operator'], $item['value']);
+                    });
+                }
+                if ($type === 'where') {
+                    $query->where($item['field'], $item['operator'], $item['value']);
+                }
+            }
+        }
+
+        return $query;
     }
 }
