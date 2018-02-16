@@ -37,4 +37,12 @@ trait ApiErrorResponses
     ): JsonResponse {
         return $this->respondError($message, 404, $errorCode, $additionalData);
     }
+
+    protected function respondInternalServerError(
+        string $message = 'An unexpected error occurred on the server.',
+        ?int $errorCode = null,
+        array $additionalData = []
+    ): JsonResponse {
+        return $this->respondError($message, 500, $errorCode, $additionalData);
+    }
 }
