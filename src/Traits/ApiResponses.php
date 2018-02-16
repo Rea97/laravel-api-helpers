@@ -28,7 +28,7 @@ trait ApiResponses
         ];
 
         if (config('api-helpers.messages.with_status_code')) {
-            $response = array_merge($response, ['status_code' => $data['status_code']]);
+            $response = array_merge($response, ['status' => (string) $data['status_code']]);
         }
 
         if (! empty($data['additional_data'])) {
