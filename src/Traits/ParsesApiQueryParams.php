@@ -35,8 +35,39 @@ trait ParsesApiQueryParams
         return $includes;
     }
 
+    protected function parseQueryParameter(Request $request, array $relations)
+    {
+        [$field, $search] = $this->parseApiListParameters('q', ':', $request);
+        // TODO: Validate that search does not has more than 100 characters, throw an exeption if so.
+        if (str_contains($field, '.')) {
+            [$relation, $field] = explode('.', $field);
+            // TODO: Check if relation exists on the model, if not, throw an exception
+            // TODO: Check if field exists on the related model, if not, throw an exception
+            return [
+                'where_has' => [
+                    [
+                        'relation' => $relation,
+                        'field' => $field,
+                        'operator' => 'LIKE',
+                        'value' => "%{$search}%"
+                    ]
+                ]
+            ];
+        }
+        // TODO: Check if field exists on the model, if not, throw an exception
+        return [
+            'where' => [
+                [
+                    'field' => $field,
+                    'operator' => 'LIKE',
+                    'value' => "%{$search}%"
+                ]
+            ]
+        ];
+    }
+
     /**
-     * Parses the "where" query string and returns a criteria array.
+     * Parses the "filter" query string and returns a criteria array.
      *
      * @param Request $request
      * @param array   $available Model attributes and relations that are searchable
@@ -54,6 +85,11 @@ trait ParsesApiQueryParams
             [$field, $operator, $value] = $this->structureWhereFromString($filter);
             
             if (str_contains($field, '.')) {
+                // If relations key is null then the resource does not have relations
+                if ($available['relations'] === null) {
+                    continue;
+                }
+                
                 [$relation, $field] = explode('.', $field);
                 // Verify the requested relation field exists
                 if (! array_key_exists($relation, $available['relations'])) {
@@ -152,7 +188,7 @@ trait ParsesApiQueryParams
             $delimiter = '>';
             $operator = '>';
         }
-
+        
         if (str_contains($where, '<:')) {
             $delimiter = '<:';
             $operator = '<=';
