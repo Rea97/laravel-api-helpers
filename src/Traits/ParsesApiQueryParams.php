@@ -35,9 +35,15 @@ trait ParsesApiQueryParams
         return $includes;
     }
 
-    protected function parseQueryParameter(Request $request, array $relations)
+    protected function parseQueryParameter(Request $request, array $relations): ?array
     {
-        [$field, $search] = $this->parseApiListParameters('q', ':', $request);
+        $query = $this->parseApiListParameters('q', ':', $request);
+
+        if (count($query) < 2) {
+            return null;
+        }
+
+        [$field, $search] = $query;
         // TODO: Validate that search does not has more than 100 characters, throw an exeption if so.
         if (str_contains($field, '.')) {
             [$relation, $field] = explode('.', $field);
