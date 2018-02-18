@@ -181,6 +181,19 @@ trait ParsesApiQueryParams
         return (bool) $request->query('paginate', $default);
     }
 
+    protected function parseFieldsParameter(Request $request, array $attributes): array
+    {
+        $fields = $this->parseApiListParameters('fields', ',', $request);
+
+        foreach ($fields as $field) {
+            if (! in_array($field, $attributes, true)) {
+                throw new AttributeNotFoundException("Field '{$field}' not found in the requested resource.");
+            }
+        }
+
+        return $fields;
+    }
+
     /**
      * Parses all the query parameters available in the package.
      */
