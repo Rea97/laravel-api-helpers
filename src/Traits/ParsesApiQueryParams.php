@@ -160,6 +160,21 @@ trait ParsesApiQueryParams
         return $orderBy;
     }
 
+    protected function parsePerPageParameter(Request $request, int $default = 10): int
+    {
+        $limit = (int) $request->query('per_page', $default);
+
+        if (is_int($limit) && $limit > 0) {
+            return $limit;
+        }
+        return $default;
+    }
+
+    protected function parsePaginateParameter(Request $request, bool $default = false): bool
+    {
+        return (bool) $request->query('paginate', $default);
+    }
+
     /**
      * Parses all the query parameters available in the package.
      */
